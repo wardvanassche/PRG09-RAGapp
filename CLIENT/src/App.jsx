@@ -60,7 +60,8 @@ export default function App() {
                             className="flex-1 px-4 py-2 bg-[#1c2a4d75] text-gray-300 rounded-2xl shadow-lg focus:outline-none"
                         />
                         <button type="submit" disabled={loading}
-                                className="px-4 py-2 bg-blue-500 text-white rounded-2xl hover:bg-blue-600 transition">
+                                className={`px-4 py-2 bg-blue-500 text-white rounded-2xl ${loading ? "opacity-50" +
+                                    " cursor-not-allowed" : "hover:bg-blue-600"}`}>
                             {loading ? <p className="animate-pulse">
                                 Loading...
                             </p>
