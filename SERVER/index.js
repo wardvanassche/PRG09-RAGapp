@@ -8,7 +8,7 @@ app.use(express.json())
 app.use(express.urlencoded({extended: true}))
 
 const model = new ChatOllama({
-    model: process.env.OLLAMA_MODEL_NAME, // or any model you have pulled in Ollama
+    model: process.env.OLLAMA_LLM_MODEL, // or any model you have pulled in Ollama
     baseUrl: process.env.OLLAMA_BASE_URL, // Default Ollama URL
 });
 
