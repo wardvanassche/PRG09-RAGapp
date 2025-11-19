@@ -27,7 +27,7 @@ export default function App() {
             })
 
             // handle HTTP errors
-            if (!response.ok) {
+            if (response.ok) {
 
                 // streaming response
                 const reader = response.body.getReader();
