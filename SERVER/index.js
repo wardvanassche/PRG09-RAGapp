@@ -21,8 +21,14 @@ app.post("/chat", async (req, res) => {
     const prompt = req.body.prompt;
     console.log("Received prompt:", prompt); // logs received prompt in terminal
 
-    const response = await model.invoke(prompt);
-    res.json({ response: response.content });
+    const stream = await model.stream(prompt);
+    res.setHeader('Content-Type', 'text/plain');
+    for await (const chunk of stream) {
+        console.log(chunk.content)
+        res.write(chunk.content)
+    }
+    res.end()
+
 });
 
 app.listen(3000, () => console.log(`Server running on http://localhost:3000`))

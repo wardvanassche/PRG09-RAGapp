@@ -5,6 +5,6 @@ const embeddings = new OllamaEmbeddings({
     baseUrl: process.env.OLLAMA_BASE_URL, // Default Ollama URL
 });
 
-const data = await embeddings.embedQuery("Hello world!");
-console.log(data);
-console.log(`Created vector with ${data.length} values.`)
+const vectordata = await embeddings.embedQuery("Hello world!");
+console.log(vectordata);
+console.log(`Created vector with ${vectordata.length} values.`)
