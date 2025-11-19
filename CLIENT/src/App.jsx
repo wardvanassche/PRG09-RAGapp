@@ -1,10 +1,14 @@
 import './app.css'
 import {useState} from "react";
+import showdown from "showdown";
 
 export default function App() {
     const [prompt, setPrompt] = useState('');
     const [loading, setLoading] = useState(false);
     const [output, setOutput] = useState('');
+
+    // converter for showdown
+    const converter = new showdown.Converter();
 
     const submitHandler = async (e) => {
         e.preventDefault();
@@ -43,7 +47,7 @@ export default function App() {
                     {/* output */}
                     <div className="flex justify-start mb-3">
                         <div className="text-gray-300 px-4 py-2 max-w-[75%]">
-                            {output}
+                            <p dangerouslySetInnerHTML={{__html: converter.makeHtml(output)}}></p>
                         </div>
                     </div>
                 </div>
