@@ -1,6 +1,6 @@
 import express from 'express'
 import cors from 'cors'
-import { ChatOllama } from "@langchain/ollama";
+import {ChatOllama} from "@langchain/ollama";
 
 const app = express()
 app.use(cors())
@@ -13,7 +13,7 @@ const model = new ChatOllama({
 });
 
 app.get('/', (req, res) => {
-    res.json({ message: 'Hello, world!' })
+    res.json({message: 'Hello, world!'})
 })
 
 // Use in your Express route

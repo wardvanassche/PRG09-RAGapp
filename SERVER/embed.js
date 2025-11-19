@@ -1,4 +1,4 @@
-import { OllamaEmbeddings } from "@langchain/ollama";
+import {OllamaEmbeddings} from "@langchain/ollama";
 
 const embeddings = new OllamaEmbeddings({
     model: process.env.OLLAMA_EMBEDDING_MODEL, // or any model you have pulled in Ollama
