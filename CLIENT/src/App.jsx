@@ -84,7 +84,8 @@ export default function App() {
             <main className="flex flex-col w-full max-w-5xl flex-1 p-4 my-12">
 
                 {/* chat window */}
-                <div className="flex-1 overflow-y-auto max-h-[80vh] mb-4 space-y-3 bg-[#1c2a4d75] p-4 rounded-2xl shadow-lg">
+                <div
+                    className="flex-1 overflow-y-auto max-h-[80vh] mb-4 space-y-3 bg-[#1c2a4d75] p-4 rounded-2xl shadow-lg">
                     {/* output */}
                     <div className="flex justify-start mb-3">
                         <div className="px-4 py-3 max-w-[75%] rounded-2xl bg-[#22355d] text-gray-300 shadow-md">
@@ -111,7 +112,7 @@ export default function App() {
                                 className={`px-4 py-2 bg-blue-500 text-white rounded-2xl ${loading ? "opacity-50" +
                                     " cursor-not-allowed" : "hover:bg-blue-600"}`}>
                             {loading ? <p className="animate-pulse">
-                                    Thinking...
+                                    Loading...
                                 </p>
                                 :
                                 <p>
