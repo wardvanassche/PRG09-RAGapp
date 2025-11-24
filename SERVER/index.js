@@ -1,4 +1,4 @@
-import express, {response} from 'express'
+import express from 'express'
 import cors from 'cors'
 import {ChatOllama} from "@langchain/ollama";
 import {AIMessage, HumanMessage, SystemMessage} from "@langchain/core/messages";
