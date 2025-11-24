@@ -1,5 +1,5 @@
 import './app.css'
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import showdown from "showdown";
 
 // converter for showdown
@@ -9,6 +9,14 @@ export default function App() {
     const [prompt, setPrompt] = useState('');
     const [loading, setLoading] = useState(false);
     const [output, setOutput] = useState('');
+    const [history, setHistory] = useState([]);
+
+    // load local stored history
+    useEffect(() => {
+        const localStoredHistory = JSON.parse(localStorage.getItem("history") || "[]")
+        setHistory(localStoredHistory)
+        console.log("Loaded history from localStorage: ", localStoredHistory)
+    }, []);
 
     // submit handler for form
     const submitHandler = async (e) => {
@@ -23,7 +31,10 @@ export default function App() {
                     'Content-Type': 'application/json',
                     'Accept': 'application/json'
                 },
-                body: JSON.stringify({prompt}),
+                body: JSON.stringify({
+                    prompt: prompt,
+                    history: history
+                }),
             })
 
             // handle HTTP errors
@@ -44,6 +55,13 @@ export default function App() {
                     finalResult += chunk
                     setOutput(finalResult)
                 }
+
+                // new history takes previous history and adds current prompt and AI message
+                const newHistory = [...history, {human: prompt, ai: finalResult}]
+                // add new history to local storage
+                localStorage.setItem("history", JSON.stringify(newHistory))
+                // Update history
+                setHistory(newHistory)
 
                 // empty prompt and set loading to false
                 setPrompt('')
