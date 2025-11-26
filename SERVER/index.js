@@ -1,7 +1,8 @@
 import express from 'express'
 import cors from 'cors'
-import {ChatOllama} from "@langchain/ollama";
+import {ChatOllama, OllamaEmbeddings} from "@langchain/ollama";
 import {AIMessage, HumanMessage, SystemMessage} from "@langchain/core/messages";
+import {FaissStore} from "@langchain/community/vectorstores/faiss";
 
 const app = express()
 app.use(cors())
@@ -13,8 +14,15 @@ const model = new ChatOllama({
     baseUrl: process.env.OLLAMA_BASE_URL, // Default Ollama URL
 });
 
+
+// embedding model
+const embeddings = new OllamaEmbeddings({
+    model: process.env.OLLAMA_EMBEDDING_MODEL, // or any model you have pulled in Ollama
+    baseUrl: process.env.OLLAMA_BASE_URL, // Default Ollama URL
+});
+
 app.get('/', (req, res) => {
-    res.json({message: 'Hello, world!'})
+    res.json({message: 'Server is running'})
 })
 
 app.post("/chat", async (req, res) => {
@@ -27,9 +35,16 @@ app.post("/chat", async (req, res) => {
     const history = req.body.history;
     console.log("Received history:", history);
 
+    // get context from vectordata
+    const vectorStore = await FaissStore.load("faiss-index", embeddings);
+    // get relevant context from vector data (based on human prompt)
+    const relevantDocs = await vectorStore.similaritySearch(prompt, 3);
+    const contextText = relevantDocs.map(d => d.pageContent).join("\n---\n")
+
     // define messages
     let messages = [
-        new SystemMessage('You are a helpful assistant.'),
+        new SystemMessage('Je bent een behulpzame assistent'),
+        new HumanMessage(`Hier is wat context:\n${contextText}\n\nVraag: ${prompt}`),
     ];
 
     for (const {human, ai} of history) {
