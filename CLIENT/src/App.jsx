@@ -1,11 +1,24 @@
 import './app.css'
-import {useState} from "react";
+import {useEffect, useState} from "react";
+import showdown from "showdown";
+
+// converter for showdown
+const converter = new showdown.Converter();
 
 export default function App() {
     const [prompt, setPrompt] = useState('');
     const [loading, setLoading] = useState(false);
     const [output, setOutput] = useState('');
+    const [history, setHistory] = useState([]);
 
+    // load local stored history
+    useEffect(() => {
+        const localStoredHistory = JSON.parse(localStorage.getItem("history") || "[]")
+        setHistory(localStoredHistory)
+        console.log("Loaded history from localStorage: ", localStoredHistory)
+    }, []);
+
+    // submit handler for form
     const submitHandler = async (e) => {
         e.preventDefault();
         setLoading(true);
@@ -18,32 +31,68 @@ export default function App() {
                     'Content-Type': 'application/json',
                     'Accept': 'application/json'
                 },
-                body: JSON.stringify({ prompt }),
+                body: JSON.stringify({
+                    prompt: prompt,
+                    history: history
+                }),
             })
 
-            const data = await response.json();
-            console.log("received response:", data.response);
+            // handle HTTP errors
+            if (response.ok) {
 
-            setOutput(data.response);
+                // streaming response
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder('utf-8')
+                let finalResult = ""
 
+                while (true) {
+                    const {value, done} = await reader.read()
+                    if (done) break
+
+                    const chunk = decoder.decode(value, {stream: true})
+                    console.log(chunk)
+
+                    finalResult += chunk
+                    setOutput(finalResult)
+                }
+
+                // new history takes previous history and adds current prompt and AI message
+                const newHistory = [...history, {human: prompt, ai: finalResult}]
+                // add new history to local storage
+                localStorage.setItem("history", JSON.stringify(newHistory))
+                // Update history
+                setHistory(newHistory)
+
+                // empty prompt and set loading to false
+                setPrompt('')
+                setLoading(false)
+
+            } else {
+                console.error("Fetch error:", response.status, response.statusText);
+                setOutput(`Something went wrong. Please try again.`);
+                setLoading(false);
+            }
         } catch (error) {
             console.error('Error:', error);
-        }
 
-        setPrompt('');
-        setLoading(false);
+        }
     }
 
     return (
-        <div className="flex flex-col items-center justify-between min-h-screen bg-gradient-to-tr from-[#0f1c34] via-[#1c2a4d] to-[#4c6ef5]">
+        <div
+            className="flex flex-col items-center justify-between min-h-screen bg-gradient-to-tr from-[#0f1c34] via-[#1c2a4d] to-[#4c6ef5]">
             <main className="flex flex-col w-full max-w-5xl flex-1 p-4 my-12">
-                <h1 className="text-3xl flex justify-center font-bold text-gray-300 mb-4">Programmeren 9</h1>
-                <div className="flex-1 overflow-y-auto mb-4 space-y-3 bg-[#1c2a4d75] p-4 rounded-2xl shadow-lg">
 
+                {/* chat window */}
+                <div
+                    className="flex-1 overflow-y-auto max-h-[80vh] mb-4 space-y-3 bg-[#1c2a4d75] p-4 rounded-2xl shadow-lg">
                     {/* output */}
                     <div className="flex justify-start mb-3">
-                        <div className="text-gray-300 px-4 py-2 max-w-[75%]">
-                            {output}
+                        <div className="px-4 py-3 max-w-[75%] rounded-2xl bg-[#22355d] text-gray-300 shadow-md">
+                            <div
+                                className="prose prose-invert"
+                                dangerouslySetInnerHTML={{__html: converter.makeHtml(output)}}
+                            ></div>
                         </div>
                     </div>
                 </div>
@@ -63,8 +112,8 @@ export default function App() {
                                 className={`px-4 py-2 bg-blue-500 text-white rounded-2xl ${loading ? "opacity-50" +
                                     " cursor-not-allowed" : "hover:bg-blue-600"}`}>
                             {loading ? <p className="animate-pulse">
-                                Loading...
-                            </p>
+                                    Loading...
+                                </p>
                                 :
                                 <p>
                                     Send
