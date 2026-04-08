@@ -31,7 +31,7 @@ router.post("/", async (req, res) => {
     // messages
     let messages = [
         new SystemMessage('Je bent een behulpzame assistent'),
-        new HumanMessage(`Hier is wat context:\n${contextText}\n\nVraag: ${prompt}`),
+        new HumanMessage(`Gebruik deze context en deze context alleen als er vragen over stage gesteld worden. Verzin zelf geen antwoorden over stage:\n${contextText}\n\nVraag: ${prompt}`),
     ];
 
     for (const {human, ai} of history) {
